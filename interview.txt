@@ -1,0 +1,103 @@
+# Language fundamentals
+What does JIT compiler do?
+Can you give a short summary of what JVM does?
+
+# Collections
+What is a De-queue?
+What is the time complexity for get by index/add/contains for ArrayList?
+What is the difference between synchronized collections and concurrent collections?
+What is amortized constant time? (context of arraylist)
+
+# Annotations
+How you can you retrieve annotations?
+
+# Exceptions
+What are the advantages of exceptions in Java?
+
+# Threads
+What is context switching?
+What is Thread interference?
+In context of multi-threading what are Deadlock, Starvation, and Livelock?
+Can two threads execute two methods (static and non-static concurrently)? What happens behind scene when you put synchronized at a method level? What if the method is static?
+What does race condition mean?
+Define CyclicBarrier. 
+Define Semaphore. 
+Define CountdownLatch.
+
+# Server Side Development
+Inversion of control vs Dependency injection?
+
+## Spring
+Spring sub modules overview.
+What is the difference between singleton and prototype?
+What is the difference between Autowired, Required, Qualifier?
+Types of transaction management used by Spring. (Programmatic vs Declarative )
+Can you explain a little bit how does @Transactional work in Spring?
+What is the resource that is bind to a thread when working with DataSourceTransactionManager?
+What is the resource that is bind to a thread when working with JmsTransactionManager?
+Name Some of the Design Patterns Used in the Spring Framework?
+
+# Data persistence
+Define key database properties (ACID).
+Transaction propagation? Examples.
+Transaction isolation levels? Examples.
+Define non-repeatable read phenomena.
+Optimistic locking vs Pessimistic Locking
+
+# Middleware Integration
+Difference between queue and topic?
+Usage of JMSCorrelationID property?
+How does sync request reply work?
+Idempotent REST API?
+Durable subscriber vs non-durable subscriber?
+
+# Security
+Define encryption.
+Symmetric encryption algorithms vs asymmetric (or public key) encryption algorithms? What type is RSA? How about AES?
+What is the difference between authentication and access control?
+Keystore vs Truststore
+Define hash
+
+# Functional testing
+What is the difference between smoke test and user acceptance test?
+Define automated software testing.
+Differences between BDD and TDD.
+
+# Unit Testing
+What is a mock?
+How does PowerMockito work behind scenes?
+# Integration Testing
+Embedded message broker and embedded databases suitable for integration testing?
+# Quality attributes
+Difference between functional requirements vs non-functional requirements?
+Define scalability.
+# Design patterns & principles
+Define S.O.L.I.D. principles
+Define Flyweight pattern
+Define Prototype pattern
+
+
+# Enterprise integration pattern
+Define microservices.
+What is a load balancer? Types of balancing.
+Event driven architecture patterns.
+
+# SQL/Database
+Pitfall of having too many indexes?
+Why is string concatenation of SQL query strings a bad idea?
+Tips for inserting million of records into a database? From SQL command line? From Java?
+Have you ever heard about split-brain scenario when talking about databases?
+
+# UNIX
+What would you use to replace values in a file?
+How would you check if a particular program is running
+List open files together with the processes which that opened them?
+How to check with what environment variables a process started?
+How would you find how much memory a process is using?
+
+# Functional programming
+Pure functions
+First-class functions vs higher-order functions
+
+# Uncategorized
+What is contract testing?
