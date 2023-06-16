@@ -1,0 +1,226 @@
+1.Scurta prezentare proiect si tehnologii -5 min
+
+Tehnologii: 
+UI - frontend Angular7 si primefaces impachetat in war si deployat in tomcat.
+Comunica cu backendul prin REST.
+Backendul este scris cu Java8 si Spring, Spring Web, Spring WebServices, Spring Boot, Spring Batch.
+BD - Oracle12c
+Federarea datelor se face zilnic ruland 2 jaruri secvential, scrise cu Spring Batch, care sunt rulate prin ControlM un orchestrator avansat.
+Avem mai multe servere noduri, peste care Zuul face o rutare dinamica. Zuul este o solutie dezvoltata de Netflix si reprezinta un
+ gateway service.
+
+Aplicatia refactorizeaza un tab din Siebel, numit pricing, si ruleaza in paralel in productie cu vechiul tab, fiind accesibila prin iframe.
+Monitorizarea aplicatiilor se face in Splunk.
+
+Pentru a testa aplicatia automat avem un proiect separat scris cu Cucumber.
+
+2.Prezentarea experientei sau poate ar tb sa formulez cateva intrebari.
+Care ar fi cea mai buna metoda de a tine timpul scurt.
+
+
+3. Cateva intrebari de incalzire
+3.1. Diferente si asemanari intre SOAP si REST.
+3.2. Presupunem ca avem tabelele:
+Chirias(ChiriasId- PK, Nume, Prenume)
+Apartament(AptId - PK, AdresaId - FK)
+ChiriasApart(ChiriasId - PK, AptId - Pk, StartDt, EndDt)
+Cum obtinem lista chiriasilor care inchiriaza mai mult de un apartament.
+3.3. Care este diferenta intre un thread si un proces?
+3.4. 
+
+4. O problema de design de solutie din:
+
+4.1. Sa ne imaginam ca ai de construit un serviciu care va fi apelat seara, de pana la 1.000 de ori de alte aplicatii clienti.
+Acest serviciu pune la dispozitie informatii despre pretul unor actiuni (la deschidere, la inchidere, maximul si minimul).
+Poti presupune ca ai datele si le tii in ce format vrei.
+Cum ai face designul acestei aplicatii serviciu? 
+Te ocupi de dezvoltare, monitorizare si mentenanta.
+La ce moduri te gandesti, si pe care l-ai prefera?
+
+4.2. Vrem sa facem designul la o aplicatie care va furniza cea mai buna oferta de imprumut pentru clienti.
+Taskurile aplicatiei sunt:
+1. primeste cererea de imprumut
+2. obtine un scor al istoricului clientului de la biroul de credite
+3. determina bancile care l-ar deservi pe client
+4. trimite requesturi la fiecare banca selectata
+5. colecteaza toate raspunsurile
+6. determina cel mai bun raspuns
+7. trimite oferta finala ca raspuns  
+
+4.3. Creeaza un receiver idempotent.
+Adica care poate primi acelasi request/mesaj de mai multe ori.
+
+(15min) 5. Un exercitiu hands on intr-un IDE la alegere cu share screen.
+5.1. Un palindrom este o insiruire de caractere care luate invers dau acelasi rezultat.
+e.g. ana este palindrom. Scris invers tot ana. 
+     1345 nu este palindrom. Invers e diferit fiind 5431.
+    Scrie o metoda care primeste ca argument LinkedList si determina daca este sau nu palindrom.
+
+5.2.
+
+5.3.  
+----------------------------------------------------------------------------------------------------------------------------------- 
+
+Raspunsuri:
+4.1.
+Criterii:
+1.clientii sa il foloseasca usor
+2.usor de dezvoltat si intretinut
+3.flexibil si usor de adaugat cerinte noi
+4.usor de scalat in cazul in care creste numarul si eficient.
+
+Solutii posibile:
+1.Expunem un server FTP, in care clientii autorizati pot descarca fisiere.
+Pro: E usor de intretinut, si de facut back up.
+Cons:  e greu in cazul in care adaugam informatii in fisiere ca clientii sa le parseze la fel.
+
+2.Tinem informatia intr-o baza de date SQL.
+Pro: clientii pot accesa baza de date si efectua interogari dupa nevoile lor.
+Rollback, backup and security are provided.
+E usor de integrat in solutiile existente deoarece sunt deja frameworkuri gen JDBC, drivere.
+
+Cons: E o solutie mare, si ofera mai mult decat avem nevoie efectiv.
+Intretinerea nu e usoara intrucat necesita oameni care au cunostinte.
+Trebuie avut grija la drepturile si privilegiile utilizatorilor.
+
+3.XML
+Pros: e usor de citit si intretinut
+majoritatea limbajelor au librarii care parseaza XML. 
+Cons: ai nevoie sa citesti tot fisierul ca sa obtii o informatie.
+Si primesti tot xml ul chiar daca ai nevoie de o parte.
+
+Indiferent de solutie putem oferi un webservice (e.g.SOAP), care are si securitate.
+ 
+4.2. Integration Patterns
+Separam rutarea, logica de agregare, transformarea requesturilor si normalizarea raspunsurilor la acelasi format.
+ 
+Request de imprumut--> Get Credit Score (WS) cu un Content Enricher ---> GetBanks(based on credit scor rule) determina Recipient List ---> Translator pattern ca sa fie pentru fiecare banca in parte ---> Sends to all banks(Scatter &Gather cu Publish & Subscribe) 
+---> Normalizer (uniformizeaza raspunsurile la un format comun) -->Agregator (asteapta toate raspunsurile)--> Best Quote
+
+Criterii:
+1.secvential(sincron)
+trimite la o banca, asteapta raspunsul, apoi la urmatoarea si tot asa.
+Pro: e mai usor de intretinut si de dezvoltat intrucat nu are pb de concurenta si threaduri.
+Cons: ia mult timp si nu tine cont ca fiecare banca are putere de calcul si poate face simultan cu celelalte.
+Mod de implementare prin webservices sau rest si cu securitate.
+
+2.asynchron(parallel)
+trimite simultan la toate si asteapta ca sa primeasca toate raspunsurile.
+        Ordinea raspunsurilor nu trebuie sa conteze.
+Pro: daca fiecare banca ia acelasi timp sa proceseze requestul, atunci e de n ori mai rapida ca prima solutie.
+n fiind nr de banci.
+Mod de implementare prin JMS si Topic.
+
+4.3. Idempotent inseamna ca aplicat lui insusi da acelasi rezultat.
+f(x) = f(f(x))
+D.p.d.v al mesajelor inseamna ca are acelasi mesaj fie ca a fost trimis odata sau de mai multe ori.
+
+Solutii:
+1.Deduplicarea explicita, adica indepartarea mesajelor duplicate.
+Se poate obtine:
+-persistarea mesajelor primite. Un id unic ajuta sa detectam cazurile in care primim acelasi continut.
+Cat timp avem nevoie sa le tinem? Unde? In memorie/disk
+Cons: Daca latenta este mare,adica timpul in care ajunge la noi mesajul si trimitem rapsunsul de acknowledge primire.
+
+-putem lua un camp business gen un id-ul unic din mesaj si sa lasam ca baza de date sa se planga in caz de duplicat.
+Cons: Dam semnatica dubla si legam ceva care tine de business de infrastructura.
+Si la un moment dat clientii folosesc acelasi id ca sa faca un update.
+
+-putem folosi mesajul in asa fel incat sa permitem retrimiterea lui
+e.g. in loc de: "adauga 100ron in contul 123" sa reformulam "seteaza balanta din contul 123 - 110ron".
+Insa trebuie sa avem grija la concurenta, in cazul in care 2 mesaje vin cand balanta este 100ron, pentru ca intre cele 2 mesaje poate veni si 
+alt mesaj cu seteaza balanta la 150ron.   
+
+2.Logica poate fi de asa maniera ca sa suporte idempotenta.
+Comprehensive transaction support is among the most compelling reasons to use the Spring Framework.
+A transaction isolation level is defined by the following phenomena – 
+
+TrustStore is used to store certificates from Certified Authorities (CA) that verify the certificate presented by the server in an SSL connection. 
+While Keystore is used to store private key and identity certificates that a specific program should present to both parties (server or client) for verification. 
+This concludes that they are opposite of each other. In a layman’s language, we can directly conclude up that in a certification trustStore holds identification certificates that identify others while keyStore holds the identification certificates that hold us. 
+
+Here in java as in programming language, this concept is used whenever we are trying to communicate with third-party applications.
+The connection between the client and the server are diagrammatically represented for the keyStore and trustStore, which is as follows:
+--------------------------------------------------------------------------------------------------------------------------------------------------
+Please attempt to complete question (1) first. If you are happy with your solution, attempt question (2).
+Do not worry if you don't complete both questions. Please submit your code however far you get with the solutions (Please ensure it compiles first).
+
+Please ensure you write well-structured and commented code following best practice principles. 
+Your code style and quality will be evaluated, not just its ability to return the correct results.
+
+#Question (1)
+A valid string pattern looks like:
+(-O-)
+All other characters are junk, and are not part of a pattern we want to find.
+
+Note: The brackets are part of the pattern.
+We can build pattern from their individual parts:
+1 x '('
+2 x '-'
+1 x 'O'
+1 x ')'
+You receive a string of characters. Count the number of complete string patterns which could be built from the input parts.
+Note: You have to find the number of the pattern (-O-) you can make from the input the following input and result may help you understand the problem more.
+
+For example the following - 
+input: "(-O-|)&*)-O-("  
+result = 2  (enough parts to make 2 string patterns)
+
+input: "(-O)-|&*-O(--)(-O-)=+=." 
+result = 3  (enough parts to make 3 string patterns )
+
+input: "((--O"  
+result = 0  (Not enough parts to even make one string patterns)
+
+method signature:
+public int buildStringPatternType1(String data) {
+    return -1;
+}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Question (2)
+A new type of string pattern is available. For this exercise they are now worth points. 
+
+TYPE1 = (-O-) = 15 points   
+1 x '('
+2 x '-'
+1 x 'O'
+1 x ')'
+
+TYPE2 = [--O--] = 20 points
+1 x '['
+4 x '-'
+1 x 'O'
+1 x ']'
+
+Note: The brackets are part of the pattern.
+
+You receive a string of characters. The goal is to maximise the number of points you can make, by producing complete string pattern from their parts
+
+input: "(-O-)[--O--]"  
+result = 35 points  (1 x TYPE1, 1xTYPE2 )
+
+input: "------((()))OOO[]"
+result = 45 points (3 x TYPE1)
+
+input: "((--O-[]"  
+result = 0  (Not enough parts to even make one string pattern of either kind)
+
+method signature:
+public int buildOptimalStringPattern(String data) {
+    return -1;
+}
+
+--if you have 3 you write 3 selects, with union between; if you have 5 outlets you would write 5 selects with union between
+insert into cbepr_owner.party (pds_party_id, source_party_id, start_dt, end_dt, type_cd, created_by, creation_dttm, modified_by, modified_dttm, version, source, status_cd, processed_after_laip) 
+select sys_guid(), 'POChild_1', start_dt, end_dt, type_cd, created_by, creation_dttm, modified_by, modified_dttm, version, source, status_cd, processed_after_laip 
+from cbepr_owner.party 
+where source_party_id = 'POParent'
+union 
+select sys_guid(), 'POChild_2', start_dt, end_dt, type_cd, created_by, creation_dttm, modified_by, modified_dttm, version, source, status_cd, processed_after_laip 
+from cbepr_owner.party 
+where source_party_id = 'POParent'
+union
+select sys_guid(), 'POChild_3', start_dt, end_dt, type_cd, created_by, creation_dttm, modified_by, modified_dttm, version, source, status_cd, processed_after_laip 
+cbepr_owner.party
+where source_party_id = 'POParent';
+
