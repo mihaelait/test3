@@ -1,0 +1,317 @@
+
+
+Angular ----------------------------------------------------------------
+1. What are closures?
+	A closure is the combination of a function and the lexical environment within which that function was declared.
+	 i.e, It is an inner function that has access to the outer or enclosing function’s variables. The closure has three scope chains
+
+	Own scope where variables defined between its curly brackets
+	Outer function’s variables
+	Global variables
+	Let's take an example of closure concept,
+
+	function Welcome(name){
+	  var greetingInfo = function(message){
+	   console.log(message+' '+name);
+        }	
+	return greetingInfo;
+	}
+	var myFunction = Welcome('John');
+	myFunction('Welcome '); //Output: Welcome John
+	myFunction('Hello Mr.'); //output: Hello Mr.John
+	As per the above code, the inner function(i.e, greetingInfo) has access to the variables in the outer function scope(i.e, Welcome) 
+	even after the outer function has returned.
+
+2.what are the differences between promise and observables?
+	Below are the list of differences between promise and observable,
+
+	Observable													Promise
+	Declarative: Computation does not start until subscription so that they can be run whenever you need the result	Execute immediately on creation
+	Provide multiple values over time									Provide only one
+	Subscribe method is used for error handling which makes centralized and predictable error handling	Push errors to the child promises
+	Provides chaining and subscription to handle complex applications					Uses only .then() clause
+
+3.how would you parallelize multiple observable call?
+	ForkJoin() accepts an array of Observables and returns an Observable.
+	The returned observable emits an array of values (returned from REST API).
+	The forkJoin(0 function waits for observable to complete and emits data when all observables are complete.
+
+4.How would you cancel a promise on which you are waiting?
+	ES6 promises don't have a built-i mechanism for cancelling promises.
+	To support this feature you need to provide the cancel callback.
+
+5.have you used lazy loading? What is? When does a lazy module get loaded?
+  	Angular 8 supportsdynamic imports in router configuration.
+	i.e. you can use the import statment for lazy loading the module using loadChildren.
+	method is understood by IDE.
+	if by mistake you have a type in th emodule name it still accepts the strin gand throws en error during the build time.
+	e.g.{path:'user', loadChildren:'./users/user.module#UserModulee'}
+	This is done with dynamic import:
+	{path:'user',loadChildren: ()=>import('./users/user.module').then(m=>m.UserModule)};
+
+6.have you used differential loading and why?
+	From Angular 8 onwards, the application are built using differntial loading strategy from CLI to build two separate bundles as part of your deployed applications.
+	The 1st build contains ES2015 syntax which takes the advantage of built-in support in modern browsers, ship less polyfills, and results in a smaller bundle.
+	The 2nd build contains old ES5 syntax to support older browsers with all necessary polyfills. But this results in a larger bundle size.
+
+7.how can you prevent cross site scripting in angular?
+	don't use templating language to generate Angular templates on the server side which creates a hight risk of introducing template-injection vulnerabilities.
+	AOT (ahead of time) compilation aka ng build --pord separates javascript from index.html, unfortunately css processing remains inline style-src 'unsafe-inline'.
+	<metta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self';">
+	buil in sanitization with SomSanitizer
+	configure the content security policy and enabling trusted types enforcement.
+	
+Google suggested enabling individual scripts via an approach based on a combination of nonce-based CSP with strict dynamic directive.
+Webpack is capable of adding nonce to all scripts it loads.
+
+8.how can you prevent HTTP vulnerabilities?
+	  In a common anti XSRF technique(cross site forgery), the application server sends a randomy generated authenticatoion token in a cookie.
+	  The client code reads the cookie and adds a customer request header with the header with the token in all subsequent requests.
+	  The server compares the received cookie vakue to the request header value and rejects the requests if the value is missng or don't match.
+	  This technique is effective because all browsers implement the same origin policy.
+          Only code from the website on which the cookies are set can read the cookies from that site and set custom headers on requests to that site.
+	  This means that only your application can read this cookie token and set the custom header.
+
+	Angular has built-in support for preventing http level vulnerabilities such as as cross-site request forgery (CSRF or XSRF) 
+	and cross-site script inclusion (XSSI). 
+	Even though these vulnerabilities need to be mitigated on server-side, Angular provides helpers to make the integration easier on the client side.
+		HttpClient supports a token mechanism used to prevent XSRF attacks
+		HttpClient library recognizes the convention of prefixed JSON responses(which non-executable js code with ")]}',\n" characters) 
+		and automatically strips the string ")]}',\n" from all responses before further parsing
+
+9.What are the security principles in angular?
+	Below are the list of security principles in angular,
+
+	You should avoid direct use of the DOM APIs.
+	You should enable Content Security Policy (CSP) and configure your web server to return appropriate CSP HTTP headers.
+	You should Use the offline template compiler.
+	You should Use Server Side XSS protection.
+	You should Use DOM Sanitizer.
+	You should Preventing CSRF or XSRF attacks.
+
+10.Some hands on code/design a solution OR develop a project based on given spec and explain it.
+
+-----------------------------JAVA & SQL------------------------
+11.Can you explain denormalized versus normalized database?
+	Normalized databases are designed to minimize redundancy, while denormalized databses are designed to 
+optimize read.time.
+        e.g. Normalized DB Courses M : M Teachers. With a third associative table holding courseId Pk and TeacherId pk.
+	     One benefit is informationn about the teacher(name, address, etc..) is only once stored in DB.
+	     The drawback is that many common queries will require expendive joins.
+
+	We can denormalize the DB by storing redundant data.
+	e.g if we need often teacher name we can store it on course table.
+	It's used to create high scalable systems.
+
+12. Courses table (PK CourseId, CourseName, FK TeacherId)
+    Teachers(PK TeacherId, TeacherName)
+    Students(PK StudentId, Student_name)
+    StudentCourses(PK StudentId,PK CourseId)
+1.   Implement a query to get a list of all students and 
+   how many courses a student is enrolled in.
+   
+   SELECT student_id, student_name, count(sc.course_id)
+   FROM student s
+   left outer join studentcourses sc on sc.student_id = s.student_id
+   group by student_id, student_name
+
+2.   Implement a query to get a list of all students name that take 5 courses.
+
+   SELECT student_id, student_name, count(sc.course_id)
+   FROM student s
+   join studentcourses sc on sc.student_id = s.student_id
+   group by student_id, student_name
+   having count(sc.course_id) = 5
+
+3.Implement a query to get a list of all students that do not attend any course.
+    SELECT student_id, student_name
+   FROM student s
+   left outer join studentcourses sc on sc.student_id = s.student_id
+   Where sc.student_id is null;
+
+4.Implement a query to get a list of all teachers and how many students they each teach, sort 
+the list in a descending order of the number of the students.
+select teacherId, count(sc.courseid)
+from courses c
+left join studentCourses on c.courseId = sc.courseId
+group by teacherId
+order by  count(sc.courseid) desc
+
+13. What is the difference between final, finally and finalize?
+	Final controls whhether a variable, method, or class is changeble.
+	A variable can't change, a reference ca't point to another object on the heap.
+        A method can't be overriden, and a class can't be subclassed.
+        Finally - try{} or try- catch blocks, always executed , clean up code except when JVM exits.
+	Finalize - GC calls it before destroying the object.   
+
+14.Explain the differences between TreeMap, HashMap and LinkedHashMap, provide an example.
+	Key, value map.
+	Time and ordering of keys.
+	HashMap - O(1) lookup and insertion, but the order of keys is arbitrarly same.
+	TreeMap O(log n) - lookup and insertion, keys are ordered and must implement Comparable.
+	LinkedHashMap O(1) - lookup and insertion. Keys are orderes by their insertion order. Double linked buckets.
+
+15.1)Write a lambda to compute the total population of a continent.
+   Where we have Country class with methods getContinent() and getPopulation().
+	getPopulation(List<Country> countries, String continent); 
+   2) Using lambda expression write a function List<Integer> getRandomSubset(List<Integer> list)
+     that returns a random subset of arbitrary size).
+     All subsets should be equally likely to be chosen.
+
+16.Can you explain the SOLID principles?
+  S = single responsibility principle ( a class should have only one reason to change, one job to do)
+  O = open closed principle (objects should be open for extension but closed to modification)
+  L = liskov substitution principle ( every subclass should be substitutable for their parent)
+  I = interface segregration principle (a client should never be forced to implement an interface 
+that it doesn't use, or clients shouldnt' be forced to depend on methods they do not use)
+  D = dependency inversion (entities should depend on abstractions, not on concretions. High level module
+must not depend on the low level module)	
+      
+
+17.What's your last or favourite achievement in solving a difficult task?
+
+18.
+1)Design an apartment renting agency.
+
+2) Design a parking lot using object oriented principles.
+enum VehicleSize{MOTORCYCLE, CAR, VAN} -1, 1, 3
+abstract class Vehicle - plate:String , spotsNeeded : int, size: VechicleSize, parkingSports: List<ParkingSpot>
+                       - parkInSport(ParkingSpot) adds to list a spot
+		       - clearSpot(){..} 
+		       - boolean canFitInSpot(ParkingSpot)	  
+ class Car extends Vehicle - needs one CAR spot
+ class Motorcycle extends Vehicle - needs any spot CAR or MOTORCYCLE
+ class Van extends Vehicles - needs 5 spots
+
+class Level - floor: int, sports : ParkingSpot[], availableSpots
+            - boolean canParkVehicle(Vehicle v) {//finds a place to park return false if failed}
+            - int findAvailableSpots(Vehicle v){//returns a index}
+            - boolean parkStartingAtSpot(int num, Vechildev) { 
+	    
+class ParkingLot - leveles: Level[], 
+		 - boolean parkVehicle(Vehicle v)
+
+class ParkingSpot - vehicle: Vehicle, spotSize: VehicleSize, row: int, spotNumber:int, level :Level 
+                  - boolean park(Vehicle v) 
+                  - boolean canFitVehicle(Vehicle v)//check if the spot is big enough 
+                  - void removeVehicle()
+
+1)Design the data structure for an online book reader system.
+Here is an open talk at a high level or low level on core classes, depending on his experience.
+
+For middle or junior hint: One way would be at core classes the most simple way:
+ 
+  1. make assumptions since it's not much functionality described.
+  - user membership creation and extension
+  - searching the database of books
+  - reading a book
+  - only one active book by this user
+  - onlly one user at the time
+
+  2. to implement we need ojects like User, Book, Library and functions: get, set, update.. at least
+
+  3.core class OnlineReaderSystem would be the body stores info about the books, deals with user management, refreshes the display.
+   public class OnlineReaderSystem{
+    	private Library library;
+	private UserManagement userManagement;
+	private Display display;
+
+	private Book activeBook;
+	private User activeUser;
+	
+	public OnlineReaderSystem(){
+		library = new Library();
+		userManagement = new UserManagement();
+		display = new Display();
+	}
+       getters for all;
+       
+       //no setters but for
+       public void setActiveUser(User user){
+	this.activeUser = user;
+        display.displayUser(user);
+      }
+       public void setActiveBook(Book book){
+	this.activeBook = book;
+        display.displayBook(book);
+      }
+ }
+
+  public class Library{
+	private HashMap<Integer, Book> books = new HashMap<>();
+        
+        public Book addBook(int id, String details){
+		...
+		//put
+	}
+	
+	public 	boolean remove(Book b){ retun remove(b.getId());}
+	public boolean remove(int id) {//removes from hashmap}
+        public Book find(int id){return books.get(id);}
+}
+ 
+ public class UserManagement{
+	private HashMap<Integer, User> users= new HashMap<>();
+        
+        public User addUser(int id, String details){
+		...
+		//put
+	}
+	
+	public 	boolean remove(User b){ retun remove(b.getId());}
+	public boolean remove(int id) {//removes from hashmap}
+        public User find(int id){return users.get(id);}
+}  
+
+ public class Display {
+	private Book activeBook;
+	private User activeUser;
+        private int pageNumber = 0;
+   
+        public void displayUser(User user){
+          activeUser = user;
+	  refreshUsername();	
+	}
+    	public void displayBook(Book book){
+          activeBook = book;
+	  pageNumber = 0;
+	  refreshBook();	
+	}
+	
+	public void turnPageForward(){ 
+        	pageNumber++;
+		refreshPage();
+	}
+	public void turnPageBackwards(){
+        	pageNumber--;
+		refreshPage();	
+	}	
+       public void refreshUsername(){//updates username detail displayed
+	}
+       public void refreshBook(){//updates book detail displayed
+	}
+       public void refreshPage(){//updates page detail displayed
+	}
+}
+
+Book and User are just simple POJO 
+
+19.solve a problem of choice in its' own IDE while sharing and explaining in 15 minutes: 
+1.implement an algorithm to print if a string contains a valid combinations of pairs of parentheses (e.g.properly opened and closed).
+example
+input: (avs(d)1)32(wsd)
+Output: true
+
+2.Let's assume you have 2 numbers represented by 2 linked list, where each node contains a single digit.
+The digits are stored in reverse order, such that the 1st digit is at the head of the list.
+Write a function that adds the 2 numbers and returns the sum as a linked list.
+example
+input: (7->1->6)+(5->9->2). that's 617+295
+output:2->1->9 that's 912.
+
+3.Implement a function to check if a linked list is a palindrome.
+e.g. of palindrome a->n->a backwards is the same.
+
+3.Write code to remove duplicates from an unsorted linked list.
+
+4.Write a function to find all pairs of integers within an array which sum to a specified number.
